@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
 	//Movement + camera declarations
     [SerializeField]
-	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity, rotation;
+	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
@@ -25,6 +25,7 @@ public class PlayerMovement : MonoBehaviour
 
 	//Weapon switching states
 	private int WeaponNumber = 1;
+    private Renderer gr;
 
 	// Use this for initialization
 	void Start ()
@@ -34,10 +35,11 @@ public class PlayerMovement : MonoBehaviour
 		EnergyText.text = "Energy: " + Energy;
 		WeaponNumberText.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
 		PowerLvlTXT.text = "Power Lvl: " + PowerLevel;
-	}
-	
-	// Update is called once per frame
-	void Update () 
+        gr = gun.gameObject.GetComponent<Renderer>();
+    }
+
+    // Update is called once per frame
+    void Update () 
 	{
 		//Looking
 		transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);//player rotates along the horizontal axis for local forward vector math
@@ -59,22 +61,21 @@ public class PlayerMovement : MonoBehaviour
 		characterController.Move(speed * Time.deltaTime);
 
         //changing weapon via the alpha numbers (1-9 not numpad)
-        var guncol = gun.gameObject.GetComponent<Renderer>().material.color;
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            guncol = Color.red;
+            gr.material.color = Color.red;
             WeaponNumber = 1;
             CurrentWeapon = "BallShooter";
         }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            guncol = Color.magenta;
+           gr.material.color = Color.magenta;
             WeaponNumber = 2;
             CurrentWeapon = "GooeyCubes";
         }
-        if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            guncol = Color.yellow;
+            gr.material.color = Color.yellow;
             WeaponNumber = 3;
             CurrentWeapon = "BouncyBalls";
         }
