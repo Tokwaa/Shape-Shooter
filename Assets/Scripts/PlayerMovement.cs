@@ -6,13 +6,14 @@ public class PlayerMovement : MonoBehaviour
 {
 	//Movement + camera declarations
     [SerializeField]
-	internal float movementSpeed = 5.0f, mouseSensitivity = 5.0f, jumpSpeed = 2.0f, verticalRotation = 0f, Yrange = 70f, verticalVelocity = 0;
+	internal float movementSpeed = 5.0f, mouseSensitivity = 5.0f, jumpSpeed = 2.0f, sideSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity, rotation;
+    private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
 	//BallShooting declarations
     [SerializeField]
 	internal GameObject Canvas, ballGameobject, cubeGameobject, bouncyGameObject, gun;
-	private float fireRate = 2f;
+	private float fireRate = 2f, forwardSpeed;
 	private bool allowFire = true, limiter = true;
 	internal int Energy = 100, PhysicsObjects;
     internal int PowerLevel = 1;
@@ -39,19 +40,21 @@ public class PlayerMovement : MonoBehaviour
 	void Update () 
 	{
 		//Looking
-		var rotation = Input.GetAxis("Mouse X") * mouseSensitivity;
-		transform.Rotate(0, rotation,0);
+		rotation = Input.GetAxis("Mouse X") * mouseSensitivity;
+		transform.Rotate(0, rotation, 0);
 		
 		verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
-		verticalRotation = Mathf.Clamp(verticalRotation, -Yrange,Yrange);
-		Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation,0,0);
-		
-		// Movement
-		float forwardSpeed = Input.GetAxis("Vertical") * movementSpeed, sideSpeed = Input.GetAxis("Horizontal") * movementSpeed;
-		
-		verticalVelocity += Physics.gravity.y * Time.deltaTime;
-		
-		if(characterController.isGrounded && Input.GetKey(KeyCode.Space))
+		verticalRotation = Mathf.Clamp(verticalRotation, -Yrange, Yrange);
+		Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
+
+        // Movement
+        forwardSpeed = Input.GetAxis("Vertical") * movementSpeed;
+        sideSpeed = Input.GetAxis("Horizontal") * movementSpeed;
+        if (!characterController.isGrounded)
+        {
+            verticalVelocity += Physics.gravity.y * Time.deltaTime;
+        }
+		else if(Input.GetKey(KeyCode.Space))
 		{
 			verticalVelocity = jumpSpeed;
 		}
@@ -97,7 +100,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 PowerLevel--;
             }
-            PowerLevel = Mathf.Clamp(PowerLevel, 1, 10);
+            PowerLevel = Mathf.Clamp(PowerLevel, 0, 15);
             PowerLvlTXT.text = "Power Lvl: " + PowerLevel;
             //Debug.Log(PowerLevel);
         }
@@ -177,11 +180,11 @@ public class PlayerMovement : MonoBehaviour
         allowFire = false;
         Energy -= 10;
         EnergyText.text = "Energy: " + Energy;
-        GameObject ammoClone = Instantiate(ammoType, transform.position + transform.forward, Quaternion.identity);
-        ammoClone.transform.LookAt(Input.mousePosition);
+        GameObject ammoClone = Instantiate(ammoType, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.LookRotation(-transform.forward, Vector3.up));
         PhysicsObjects++;
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
-        ammoClone.GetComponent<Rigidbody>().AddForce((transform.position - ammoClone.transform.position).normalized * PowerLevel);
+        ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - transform.position).normalized * PowerLevel * powerEffectiveness + ammoClone.transform.up * Camera.main.transform.rotation.y;
+        Debug.Log(ammoClone.GetComponent<Rigidbody>().velocity);
         yield return new WaitForSeconds(fireRate);
         allowFire = true;
     }
