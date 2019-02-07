@@ -11,8 +11,8 @@ public class PlayerMovement : MonoBehaviour
 
 	//BallShooting declarations
     [SerializeField]
-	internal GameObject Canvas, ballGameobject, cubeGameobject,bouncyGameObject, Target, TargetAid, gun;
-	private float shootSpeed = 2f,  fireRate = 2f;
+	internal GameObject Canvas, ballGameobject, cubeGameobject, bouncyGameObject, gun;
+	private float fireRate = 2f;
 	private bool allowFire = true, limiter = true;
 	internal int Energy = 100, PhysicsObjects;
     internal int PowerLevel = 1;
@@ -177,11 +177,11 @@ public class PlayerMovement : MonoBehaviour
         allowFire = false;
         Energy -= 10;
         EnergyText.text = "Energy: " + Energy;
-        GameObject ammoClone = Instantiate(ammoType, Target.transform.position, Quaternion.identity);
+        GameObject ammoClone = Instantiate(ammoType, transform.position + transform.forward, Quaternion.identity);
         ammoClone.transform.LookAt(Input.mousePosition);
         PhysicsObjects++;
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
-        ammoClone.GetComponent<Rigidbody>().AddForce(TargetAid.transform.position - Target.transform.position * shootSpeed);
+        ammoClone.GetComponent<Rigidbody>().AddForce((transform.position - ammoClone.transform.position).normalized * PowerLevel);
         yield return new WaitForSeconds(fireRate);
         allowFire = true;
     }
