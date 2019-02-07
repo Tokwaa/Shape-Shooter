@@ -31,16 +31,11 @@ public class Turret : MonoBehaviour {
 
     void Update()
 	{
-
 		//cubes = GameObject.FindGameObjectsWithTag("StickyCube");
 		//if player in range of turret
 		if(Vector3.Distance(gameObject.transform.position,Player.transform.position)< Distance&&TurretTypePlayer==true)
 		{
 			playerInDistance=true;
-
-			
-
-			
 		}
 		//if player is not in range of turret
 		else if(Vector3.Distance(gameObject.transform.position,Player.transform.position)> Distance)playerInDistance=false;
@@ -54,7 +49,6 @@ public class Turret : MonoBehaviour {
 		Vector3 dir = Player.transform.position-transform.position;
 			//Raycast towards player
 		if(Physics.Raycast(transform.position,dir,out hit))
-			
 		{
 				//if it sees the player 
 				if(hit.collider.gameObject.tag=="Player")
