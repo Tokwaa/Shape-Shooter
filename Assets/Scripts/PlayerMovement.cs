@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
 	//BallShooting declarations
     [SerializeField]
 	internal GameObject Canvas, ballGameobject, cubeGameobject, bouncyGameObject, gun;
+    private GameObject LastFire;
     private float fireRate = 2f;
 	private bool allowFire = true, limiter = true;
 	internal int Energy = 100, PhysicsObjects;
@@ -26,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
 	//Weapon switching states
 	private int WeaponNumber = 1;
     private Renderer gr;
+
 
 	// Use this for initialization
 	void Start ()
@@ -69,7 +71,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-           gr.material.color = Color.magenta;
+            gr.material.color = Color.magenta;
             WeaponNumber = 2;
             CurrentWeapon = "GooeyCubes";
         }
@@ -151,18 +153,24 @@ public class PlayerMovement : MonoBehaviour
             //Debug.Log("RMB pressed");
         }
         if (Input.GetKeyDown(KeyCode.R))
-		{
-			var balls = GameObject.FindGameObjectsWithTag("Ball");
+        {
+            var balls = GameObject.FindGameObjectsWithTag("Ball");
             var cubes = GameObject.FindGameObjectsWithTag("StickyCube");
             foreach (var ball in balls)
             {
-                Destroy(ball);
-                Energy += 10;
+                if (ball != LastFire || balls.Length + cubes.Length == 1)
+                {
+                    Destroy(ball);
+                    Energy += 10;
+                }
             }
             foreach (var cube in cubes)
             {
-				Destroy(cube);
-				Energy += 10;
+                if (cube != LastFire || balls.Length + cubes.Length == 1)
+                {
+                    Destroy(cube);
+				    Energy += 10;
+                }
             }
             EnergyText.text = "Energy: " + Energy;
             PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
@@ -180,6 +188,7 @@ public class PlayerMovement : MonoBehaviour
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
         ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - transform.position).normalized * PowerLevel * powerEffectiveness + ammoClone.transform.up * Camera.main.transform.rotation.y;
         Debug.Log(ammoClone.GetComponent<Rigidbody>().velocity);
+        LastFire = ammoClone;
         yield return new WaitForSeconds(fireRate);
         allowFire = true;
     }
