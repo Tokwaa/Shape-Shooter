@@ -6,14 +6,14 @@ public class PlayerMovement : MonoBehaviour
 {
 	//Movement + camera declarations
     [SerializeField]
-	internal float movementSpeed = 5.0f, mouseSensitivity = 5.0f, jumpSpeed = 2.0f, sideSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity, rotation;
+	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity, rotation;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
 	//BallShooting declarations
     [SerializeField]
 	internal GameObject Canvas, ballGameobject, cubeGameobject, bouncyGameObject, gun;
-	private float fireRate = 2f, forwardSpeed;
+    private float fireRate = 2f;
 	private bool allowFire = true, limiter = true;
 	internal int Energy = 100, PhysicsObjects;
     internal int PowerLevel = 1;
@@ -40,16 +40,11 @@ public class PlayerMovement : MonoBehaviour
 	void Update () 
 	{
 		//Looking
-		rotation = Input.GetAxis("Mouse X") * mouseSensitivity;
-		transform.Rotate(0, rotation, 0);
-		
-		verticalRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
-		verticalRotation = Mathf.Clamp(verticalRotation, -Yrange, Yrange);
-		Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
+		transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);//player rotates along the horizontal axis for local forward vector math
+		verticalRotation = Mathf.Clamp(verticalRotation - Input.GetAxis("Mouse Y") * mouseSensitivity, -Yrange, Yrange); //camera rotates along the vertical axis clamped to +-70 degrees
+        Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
         // Movement
-        forwardSpeed = Input.GetAxis("Vertical") * movementSpeed;
-        sideSpeed = Input.GetAxis("Horizontal") * movementSpeed;
         if (!characterController.isGrounded)
         {
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
@@ -59,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
 			verticalVelocity = jumpSpeed;
 		}
 		
-		Vector3 speed = new Vector3 (sideSpeed, verticalVelocity, forwardSpeed);
+		Vector3 speed = new Vector3 (Input.GetAxis("Horizontal") * movementSpeed / 2, verticalVelocity, Input.GetAxis("Vertical") * movementSpeed);
 		speed = transform.rotation * speed;
 		characterController.Move(speed * Time.deltaTime);
 
@@ -132,9 +127,8 @@ public class PlayerMovement : MonoBehaviour
 		//RightMouse INPUT
 	    if(Input.GetMouseButton(1))
 		{
-			Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width/2, Screen.height/2,0));
 			RaycastHit hit;
-			if(Physics.Raycast(ray, out hit))
+			if(Physics.Raycast(Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0)), out hit))
 			{
 				if(hit.collider)
 				{
