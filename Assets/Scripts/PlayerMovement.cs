@@ -12,10 +12,9 @@ public class PlayerMovement : MonoBehaviour {
 	public float jumpSpeed = 2.0f;
 	float verticalRotation=0;
 	public float Yrange =70f;
-
 	float verticalVelocity =0;
-	
 	CharacterController characterController;
+
 	//BallShooting declarations
 	public GameObject Canvas;
 	public GameObject ballGameobject;
@@ -34,20 +33,16 @@ public class PlayerMovement : MonoBehaviour {
 	public int PhysicsObjects;
 	public int PowerLevel=1;
 	public int RealPowerLevel=1;
+
 	//UI variables
 	public Text EnergyText;
 	public Text PowerLvlTXT;
 	public Text WeaponNumberText;
 	public Text PhysicsObjText;
 	public string CurrentWeapon = "BallShooter";
+
 	//Weapon switching states
 	public int WeaponNumber = 1;
-
-
-
-
-
-
 
 	// Use this for initialization
 	void Start () {
@@ -56,15 +51,10 @@ public class PlayerMovement : MonoBehaviour {
 		Cursor.lockState = CursorLockMode.Locked;
 		characterController = this.GetComponent<CharacterController>();
 		EnergyText.text = "Energy: "+Energy;
-		  WeaponNumber = 1;
+		WeaponNumber = 1;
 		WeaponNumberText.text="Weapon Selected: "+WeaponNumber+" "+CurrentWeapon;
 		PowerLevel=1;
 		PowerLvlTXT.text = "Power Lvl: "+PowerLevel;
-
-
-		
-		
-		
 	}
 	
 	// Update is called once per frame
@@ -84,7 +74,7 @@ public class PlayerMovement : MonoBehaviour {
 		
 		verticalVelocity += Physics.gravity.y * Time.deltaTime;
 		
-		if(characterController.isGrounded && Input.GetButton("Jump"))
+		if(characterController.isGrounded && Input.GetKey(KeyCode.Space))
 		{
 			verticalVelocity = jumpSpeed;
 		}
