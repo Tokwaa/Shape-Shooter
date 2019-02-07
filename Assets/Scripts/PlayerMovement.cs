@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
 	private float shootSpeed = 2f,  fireRate = 2f;
 	private bool allowFire = true, limiter = true;
 	internal int Energy = 100, PhysicsObjects;
-    [Range(1, 10)]
     internal int PowerLevel = 1;
 
 	//UI variables
@@ -81,9 +80,9 @@ public class PlayerMovement : MonoBehaviour
             WeaponNumber = 3;
             CurrentWeapon = "BouncyBalls";
         }
-        if (WeaponNumberText.text != "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon)
+        if (WeaponNumberText.text != "Weapon Selected: " + WeaponNumber + ", " + CurrentWeapon)
         {
-            WeaponNumberText.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
+            WeaponNumberText.text = "Weapon Selected: " + WeaponNumber + ", " + CurrentWeapon;
         }
 
         //Changing power setting
@@ -92,13 +91,15 @@ public class PlayerMovement : MonoBehaviour
             var scroll = Input.GetAxis("Mouse ScrollWheel");
             if (scroll > 0) //scrolling up
             {
-                PowerLevel += 1;
+                PowerLevel++;
             }
             else
             {
-                PowerLevel -= 1;
+                PowerLevel--;
             }
+            PowerLevel = Mathf.Clamp(PowerLevel, 1, 10);
             PowerLvlTXT.text = "Power Lvl: " + PowerLevel;
+            //Debug.Log(PowerLevel);
         }
 
         //LeftMouseInput / SHOOTING
@@ -122,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
                         break;
                 }
 			}
-            Debug.Log("LMB pressed");
+            //Debug.Log("LMB pressed");
 	    }
 
 		//RightMouse INPUT
@@ -134,7 +135,7 @@ public class PlayerMovement : MonoBehaviour
 			{
 				if(hit.collider)
 				{
-					Debug.Log("Raycast Hit: " + hit.transform.name);
+					//Debug.Log("Raycast Hit: " + hit.transform.name);
 				    if(hit.collider.gameObject.tag.Contains("Ball") || hit.collider.gameObject.tag.Contains("StickyCube"))
 				    {
 					    Energy += 10;
@@ -144,12 +145,12 @@ public class PlayerMovement : MonoBehaviour
                         Destroy(hit.collider.gameObject);
 				    }
                 }
-                else
+                /*else
                 {
                     Debug.Log("Raycst missed");
-                }
+                }*/
             }
-            Debug.Log("RMB pressed");
+            //Debug.Log("RMB pressed");
         }
         if (Input.GetKeyDown(KeyCode.R))
 		{
@@ -166,19 +167,20 @@ public class PlayerMovement : MonoBehaviour
 				Energy += 10;
             }
             EnergyText.text = "Energy: " + Energy;
-            PhysicsObjText.text = "PhysicsObjects: " + PhysicsObjects;
+            PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
         }
 
     }
     private IEnumerator Fire(GameObject ammoType)
     {
+        //Debug.Log("Fired: " + ammoType)
         allowFire = false;
         Energy -= 10;
         EnergyText.text = "Energy: " + Energy;
         GameObject ammoClone = Instantiate(ammoType, Target.transform.position, Quaternion.identity);
         ammoClone.transform.LookAt(Input.mousePosition);
         PhysicsObjects++;
-        PhysicsObjText.text = "PhysicsObjects: " + PhysicsObjects;
+        PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
         ammoClone.GetComponent<Rigidbody>().AddForce(TargetAid.transform.position - Target.transform.position * shootSpeed);
         yield return new WaitForSeconds(fireRate);
         allowFire = true;
