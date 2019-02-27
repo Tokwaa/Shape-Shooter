@@ -16,12 +16,12 @@ public class PlayerMovement : MonoBehaviour
     private GameObject LastFire;
     private float fireRate = 2f;
 	private bool allowFire = true, limiter = true;
-	internal int Energy = 100, PhysicsObjects;
+	internal int PhysicsObjects;
     internal int PowerLevel = 1;
 
 	//UI variables
     [SerializeField]
-	internal Text EnergyText,  PowerLvlTXT, WeaponNumberText, PhysicsObjText;
+	internal Text PowerLvlTXT, WeaponNumberText, PhysicsObjText;
 	internal string CurrentWeapon = "BallShooter";
 
 	//Weapon switching states
@@ -34,7 +34,6 @@ public class PlayerMovement : MonoBehaviour
     {
 		Cursor.lockState = CursorLockMode.Locked;
 		characterController = GetComponent<CharacterController>();
-		EnergyText.text = "Energy: " + Energy;
 		WeaponNumberText.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
 		PowerLvlTXT.text = "Power Lvl: " + PowerLevel;
         gr = gun.gameObject.GetComponent<Renderer>();
@@ -106,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
         //LeftMouseInput / SHOOTING
         if (Input.GetMouseButton(0))
         {
-            if ((Energy > 0 || !limiter) && allowFire)
+            if (!limiter && allowFire)
 			{
                 switch (WeaponNumber)
                 {
@@ -138,8 +137,6 @@ public class PlayerMovement : MonoBehaviour
 					//Debug.Log("Raycast Hit: " + hit.transform.name);
 				    if(hit.collider.gameObject.tag.Contains("Ball") || hit.collider.gameObject.tag.Contains("StickyCube"))
 				    {
-					    Energy += 10;
-					    EnergyText.text = "Energy: " + Energy;
 					    PhysicsObjects--;
 					    PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
                         Destroy(hit.collider.gameObject);
@@ -161,7 +158,6 @@ public class PlayerMovement : MonoBehaviour
                 if (ball != LastFire || balls.Length + cubes.Length == 1)
                 {
                     Destroy(ball);
-                    Energy += 10;
                 }
             }
             foreach (var cube in cubes)
@@ -169,10 +165,8 @@ public class PlayerMovement : MonoBehaviour
                 if (cube != LastFire || balls.Length + cubes.Length == 1)
                 {
                     Destroy(cube);
-				    Energy += 10;
                 }
             }
-            EnergyText.text = "Energy: " + Energy;
             PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
         }
 
@@ -181,8 +175,6 @@ public class PlayerMovement : MonoBehaviour
     {
         //Debug.Log("Fired: " + ammoType)
         allowFire = false;
-        Energy -= 10;
-        EnergyText.text = "Energy: " + Energy;
         GameObject ammoClone = Instantiate(ammoType, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.LookRotation(-transform.forward, Vector3.up));
         PhysicsObjects++;
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
