@@ -175,10 +175,10 @@ public class PlayerMovement : MonoBehaviour
     {
         //Debug.Log("Fired: " + ammoType)
         allowFire = false;
-        GameObject ammoClone = Instantiate(ammoType, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.LookRotation(-transform.forward, Vector3.up));
+        GameObject ammoClone = Instantiate(ammoType, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.identity);
         PhysicsObjects++;
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
-        ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - transform.position).normalized * PowerLevel * powerEffectiveness + ammoClone.transform.up * Camera.main.transform.rotation.y;
+        ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - transform.position).normalized * PowerLevel * powerEffectiveness;
         Debug.Log(ammoClone.GetComponent<Rigidbody>().velocity);
         LastFire = ammoClone;
         yield return new WaitForSeconds(fireRate);
