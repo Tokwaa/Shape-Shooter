@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
 	internal GameObject Canvas, ballGameobject, cubeGameobject, bouncyGameObject, gun;
     private GameObject LastFire;
     private float fireRate = 2f;
-	private bool allowFire = true, limiter = true;
+	private bool allowFire = true;
 	internal int PhysicsObjects;
     internal int PowerLevel = 1;
 
@@ -105,7 +105,7 @@ public class PlayerMovement : MonoBehaviour
         //LeftMouseInput / SHOOTING
         if (Input.GetMouseButton(0))
         {
-            if (!limiter && allowFire)
+            if (allowFire)
 			{
                 switch (WeaponNumber)
                 {
@@ -175,10 +175,10 @@ public class PlayerMovement : MonoBehaviour
     {
         //Debug.Log("Fired: " + ammoType)
         allowFire = false;
-        GameObject ammoClone = Instantiate(ammoType, Camera.main.transform.position + Camera.main.transform.forward, Quaternion.identity);
+        GameObject ammoClone = Instantiate(ammoType, gun.transform.position + gun.transform.up , Quaternion.identity);
         PhysicsObjects++;
         PhysicsObjText.text = "Physics Objects: " + PhysicsObjects;
-        ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - transform.position).normalized * PowerLevel * powerEffectiveness;
+        ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
         Debug.Log(ammoClone.GetComponent<Rigidbody>().velocity);
         LastFire = ammoClone;
         yield return new WaitForSeconds(fireRate);
