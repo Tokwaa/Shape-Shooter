@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Bulllet : MonoBehaviour {
+public class Bullet : MonoBehaviour {
 
 	void OnCollisionEnter(Collision collision)
 	{

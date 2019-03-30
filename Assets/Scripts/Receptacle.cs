@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Receptacle : MonoBehaviour {
+public class Receptacle : MonoBehaviour
+{
 
     private void OnTriggerEnter(Collider other)
     {

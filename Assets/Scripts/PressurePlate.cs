@@ -7,6 +7,9 @@ public class PressurePlate : MonoBehaviour {
     private Vector3 StartPos;
     private bool active = false;
     private Transform ct;
+    [SerializeField]
+    GameObject Linked;
+
     private void Start()
     {
         ct = transform.GetChild(0);
@@ -23,12 +26,19 @@ public class PressurePlate : MonoBehaviour {
             ct.position = new Vector3(ct.position.x, Mathf.Lerp(ct.position.y, StartPos.y - gameObject.GetComponents<BoxCollider>()[1].bounds.extents.y, 1), ct.position.z);
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
         active = false;
     }
+
     private void OnTriggerEnter(Collider other)
     {
         active = true;
+    }
+
+    private void ActivateLinked(GameObject Linked)
+    {
+        //
     }
 }
