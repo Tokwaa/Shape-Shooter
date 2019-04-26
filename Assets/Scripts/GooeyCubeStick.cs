@@ -1,18 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GooeyCubeStick : MonoBehaviour {
-    
-	void OnCollisionEnter(Collision collision)
+public class GooeyCubeStick : MonoBehaviour
+{
+    void OnCollisionEnter(Collision collision)
     {
-        var rb = collision.gameObject.GetComponent<Rigidbody>();
-
-        if (collision.gameObject.tag.Contains("StickyCube"))
-		{
-			rb.isKinematic=true;
-			rb.useGravity=false;
-
-		}
+        Rigidbody rb = gameObject.GetComponent<Rigidbody>();
+        rb.isKinematic=true;
+        rb.useGravity=false;
 	}
 
 }
