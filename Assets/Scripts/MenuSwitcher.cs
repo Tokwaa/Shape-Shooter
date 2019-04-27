@@ -4,18 +4,9 @@ using UnityEngine;
 
 public class MenuSwitcher : MonoBehaviour
 {
-
-    public GameObject PanelToOpen;
-    public GameObject PanelToClose;
-
-    public void OpenPanel()
+    internal static void OpenPanel(GameObject PanelToOpen, GameObject PanelToClose)
     {
-
         PanelToOpen.SetActive(true);
         PanelToClose.SetActive(false);
-
-
-      
     }
- 
 }

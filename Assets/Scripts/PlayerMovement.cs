@@ -12,19 +12,21 @@ public class PlayerMovement : MonoBehaviour
 
 	//BallShooting declarations
     [SerializeField]
-	internal GameObject Canvas, ballProj, stickyProj, laserProj, TeleportProj, cubeProj, gun;
-    private GameObject LastFire, tele1, tele2;
+	internal GameObject Canvas, AmmoHolder;
+    [SerializeField]
+    internal GameObject[] AmmoTypes;
+    internal GameObject[][] ammoPool; 
+    private GameObject tele1, tele2, gun;
     private float fireRate = 2f;
-    private float[] Ammo;
+    private int[] Ammo;
 	internal int PhysicsObjects;
     internal int PowerLevel = 1;
     internal bool firing = false, teleB = false;
 
 
 	//UI variables
-    [SerializeField]
 	internal Text PowerLvlTxt, WeaponTxt, AmmoTxt;
-	internal string CurrentWeapon = "BallShooter";
+	internal string CurrentWeapon = "Ball";
 
 	//Weapon switching states
 	private int WeaponNumber = 1;
@@ -33,17 +35,33 @@ public class PlayerMovement : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
+        PowerLvlTxt = Canvas.transform.GetChild(1).gameObject.GetComponent<Text>();
+        WeaponTxt = Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
+        AmmoTxt = Canvas.transform.GetChild(3).gameObject.GetComponent<Text>();
+
+        gun = gameObject.transform.GetChild(0).GetChild(0).gameObject;
 		Cursor.lockState = CursorLockMode.Locked;
 		characterController = GetComponent<CharacterController>();
         WeaponTxt.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
         PowerLvlTxt.text = "Power Lvl: " + PowerLevel;
         gr = gun.gameObject.GetComponent<Renderer>();
-        Ammo = new float[]
+        ammoPool = new GameObject[5][];
+        Ammo = new int[]
         {
-            10, 10, 10, 10, Mathf.Infinity
-        }; AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3];
-        tele1 = Instantiate(TeleportProj, transform.position, Quaternion.identity);
-        tele2 = Instantiate(TeleportProj, transform.position, Quaternion.identity);
+            10, 10, 10, 10, 10
+        };
+        for (int i = 0; i < Ammo.Length; i++)
+        {
+            ammoPool[i] = new GameObject[Ammo[i]];
+            for (int j = 0; j < Ammo[i] - 1; j++)
+            {
+                ammoPool[i][j] = Instantiate(AmmoTypes[i], transform.position, Quaternion.identity, AmmoHolder.transform);
+                ammoPool[i][j].SetActive(false);
+            }
+        }
+        AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3] + " " + Ammo[4];
+        tele1 = Instantiate(AmmoTypes[4], transform.position, Quaternion.identity);
+        tele2 = Instantiate(AmmoTypes[4], transform.position, Quaternion.identity);
         tele1.SetActive(false);
         tele2.SetActive(false);
     }
@@ -73,42 +91,42 @@ public class PlayerMovement : MonoBehaviour
         //changing weapon via the alpha numbers (1-9 not numpad)
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            gr.material.color = Color.grey;
-            WeaponNumber = 1;
+            gr.material.color = Color.red;
+            WeaponNumber = 0;
             CurrentWeapon = "Ball";
             powerEffectiveness = 2;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            gr.material.color = Color.magenta;
-            WeaponNumber = 2;
+            gr.material.color = Color.grey;
+            WeaponNumber = 1;
             CurrentWeapon = "Cube";
             powerEffectiveness = 2;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            gr.material.color = Color.red;
-            WeaponNumber = 3;
+            gr.material.color = Color.magenta;
+            WeaponNumber = 2;
             CurrentWeapon = "Sticky";
             powerEffectiveness = 2;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            gr.material.color = Color.blue;
-            WeaponNumber = 4;
+            gr.material.color = Color.yellow;
+            WeaponNumber = 3;
             CurrentWeapon = "Laser";
             powerEffectiveness = 50;
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            gr.material.color = Color.grey;
-            WeaponNumber = 5;
+            gr.material.color = Color.blue;
+            WeaponNumber = 4;
             CurrentWeapon = "Teleporter Pair";
             powerEffectiveness = 5;
         }
-        if (WeaponTxt.text != "Weapon Selected: " + WeaponNumber + ", " + CurrentWeapon)
+        if (WeaponTxt.text != "Weapon Selected: " + WeaponNumber+1 + ", " + CurrentWeapon)
         {
-            WeaponTxt.text = "Weapon Selected: " + WeaponNumber + ", " + CurrentWeapon;
+            WeaponTxt.text = "Weapon Selected: " + WeaponNumber+1 + ", " + CurrentWeapon;
         }
 
         //Changing power setting
@@ -130,70 +148,14 @@ public class PlayerMovement : MonoBehaviour
         //LeftMouseInput / SHOOTING
         if (Input.GetMouseButton(0))
         {
-            if (allowFire())
-			{
-                switch (WeaponNumber)
-                {
-                    case 1:
-                        StartCoroutine(Fire(ballProj));
-                        break;
-                    case 2:
-                        StartCoroutine(Fire(cubeProj));
-                        break;
-                    case 3:
-                        StartCoroutine(Fire(stickyProj));
-                        break;
-                    case 4:
-                        StartCoroutine(Fire(laserProj));
-                        break;
-                    case 5:
-                        StartCoroutine(Fire(TeleportProj));
-                        break;
-                    default:
-                        break;
-                }
-			}
+            allowFire(AmmoTypes[WeaponNumber]);
 	    }
-	    if(Input.GetMouseButton(1))
-		{
-			RaycastHit hit;
-			if(Physics.Raycast(Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0)), out hit))
-			{
-				if(hit.collider)
-				{
-				    if(hit.collider.gameObject.tag.Contains("Ball") || hit.collider.gameObject.tag.Contains("StickyCube"))
-				    {
-                        Destroy(hit.collider.gameObject);
-				    }
-                }
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            var balls = GameObject.FindGameObjectsWithTag("Ball");
-            var cubes = GameObject.FindGameObjectsWithTag("StickyCube");
-            var lasers = GameObject.FindGameObjectsWithTag("Laser");
-            foreach (var ball in balls)
-            {
-                if (ball != LastFire || balls.Length + cubes.Length == 1)
-                {
-                    Destroy(ball);
-                }
-            }
-            foreach (var cube in cubes)
-            {
-                if (cube != LastFire || balls.Length + cubes.Length == 1)
-                {
-                    Destroy(cube);
-                }
-            }
-        }
-
     }
+
     private IEnumerator Fire(GameObject ammoType)
     {
         firing = true;
-        if (ammoType == TeleportProj)
+        if (ammoType == AmmoTypes[4])
         {
             RaycastHit hit;
             if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity))
@@ -201,10 +163,12 @@ public class PlayerMovement : MonoBehaviour
                 if (hit.transform.gameObject == tele1 && tele2.activeSelf && Vector3.Distance(transform.position, hit.transform.position) <= 1)
                 {
                     transform.position = tele2.transform.position;
+                    Ammo[4]--;
                 }
                 else if (hit.transform.gameObject == tele2 && tele1.activeSelf && Vector3.Distance(transform.position, hit.transform.position) <= 1)
                 {
                     transform.position = tele1.transform.position;
+                    Ammo[4]--;
                 }
                 else if (teleB == false)
                 {
@@ -225,30 +189,32 @@ public class PlayerMovement : MonoBehaviour
                         tele2.SetActive(true);
                     }
                     teleB = false;
-
                 }
             }
         }
         else
         {
-            GameObject ammoClone = Instantiate(ammoType, gun.transform.position + gun.transform.up, Quaternion.identity);
-            ammoClone.GetComponent<Rigidbody>().velocity = (ammoClone.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
-            LastFire = ammoClone;
+            foreach (GameObject p in ammoPool[WeaponNumber])
+            {
+                if (!p.activeSelf)
+                {
+                    p.SetActive(true);
+                    p.transform.position = gun.transform.position + gun.transform.up;
+                    p.GetComponent<Rigidbody>().velocity = (p.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
+                    break;
+                }
+            }
         }
         yield return new WaitForSeconds(fireRate);
         firing = false;
     }
-    private bool allowFire()
+    private void allowFire(GameObject ammo)
     {
-        if (Ammo[WeaponNumber-1] > 0 && firing == false)
+        if (Ammo[WeaponNumber] > 0 && firing == false)
         {
-            Ammo[WeaponNumber-1]--;
-            AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3];
-            return true;
-        }
-        else
-        {
-            return false;
+            Ammo[WeaponNumber]--;
+            AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3] + " " + Ammo[4];
+            StartCoroutine(Fire(ammo));
         }
     }
 }

@@ -11,7 +11,6 @@ public class LevelLoader : MonoBehaviour
     public void LoadLevel(int sceneIndex)
     {
         StartCoroutine(LoadAsynchronosly(sceneIndex));
-        
     }
 
 
@@ -24,7 +23,6 @@ public class LevelLoader : MonoBehaviour
         {
             float progress = Mathf.Clamp01(operation.progress / .9f);
             slider.value = progress;
-
             yield return null;
         }
     }
