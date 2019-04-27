@@ -18,11 +18,11 @@ public class PlayerMovement : MonoBehaviour
     internal GameObject[][] ammoPool; 
     private GameObject tele1, tele2, gun;
     private float fireRate = 2f;
-    private int[] Ammo;
+    internal static int[] Ammo;
 	internal int PhysicsObjects;
     internal int PowerLevel = 1;
     internal bool firing = false, teleB = false;
-
+    internal int maxAmmo = 10, defualtAmmo = 0;
 
 	//UI variables
 	internal Text PowerLvlTxt, WeaponTxt, AmmoTxt;
@@ -42,13 +42,11 @@ public class PlayerMovement : MonoBehaviour
         gun = gameObject.transform.GetChild(0).GetChild(0).gameObject;
 		Cursor.lockState = CursorLockMode.Locked;
 		characterController = GetComponent<CharacterController>();
-        WeaponTxt.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
-        PowerLvlTxt.text = "Power Lvl: " + PowerLevel;
         gr = gun.gameObject.GetComponent<Renderer>();
         ammoPool = new GameObject[5][];
         Ammo = new int[]
         {
-            10, 10, 10, 10, 10
+            maxAmmo, maxAmmo, maxAmmo, maxAmmo, maxAmmo
         };
         for (int i = 0; i < Ammo.Length; i++)
         {
@@ -59,11 +57,15 @@ public class PlayerMovement : MonoBehaviour
                 ammoPool[i][j].SetActive(false);
             }
         }
-        AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3] + " " + Ammo[4];
         tele1 = Instantiate(AmmoTypes[4], transform.position, Quaternion.identity);
         tele2 = Instantiate(AmmoTypes[4], transform.position, Quaternion.identity);
         tele1.SetActive(false);
         tele2.SetActive(false);
+        Ammo = new int[]
+        {
+           defualtAmmo, defualtAmmo, defualtAmmo, defualtAmmo, defualtAmmo
+        };
+        upDateUI();
     }
 
     // Update is called once per frame
@@ -94,39 +96,35 @@ public class PlayerMovement : MonoBehaviour
             gr.material.color = Color.red;
             WeaponNumber = 0;
             CurrentWeapon = "Ball";
-            powerEffectiveness = 2;
+            powerEffectiveness = 2; upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             gr.material.color = Color.grey;
             WeaponNumber = 1;
             CurrentWeapon = "Cube";
-            powerEffectiveness = 2;
+            powerEffectiveness = 2; upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             gr.material.color = Color.magenta;
             WeaponNumber = 2;
             CurrentWeapon = "Sticky";
-            powerEffectiveness = 2;
+            powerEffectiveness = 2; upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             gr.material.color = Color.yellow;
             WeaponNumber = 3;
             CurrentWeapon = "Laser";
-            powerEffectiveness = 50;
+            powerEffectiveness = 50; upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             gr.material.color = Color.blue;
             WeaponNumber = 4;
             CurrentWeapon = "Teleporter Pair";
-            powerEffectiveness = 5;
-        }
-        if (WeaponTxt.text != "Weapon Selected: " + WeaponNumber+1 + ", " + CurrentWeapon)
-        {
-            WeaponTxt.text = "Weapon Selected: " + WeaponNumber+1 + ", " + CurrentWeapon;
+            powerEffectiveness = 5; upDateUI();
         }
 
         //Changing power setting
@@ -142,7 +140,7 @@ public class PlayerMovement : MonoBehaviour
                 PowerLevel--;
             }
             PowerLevel = Mathf.Clamp(PowerLevel, 1, 15);
-            PowerLvlTxt.text = "Power Lvl: " + PowerLevel;
+            PowerLvlTxt.text = "Power Lvl: " + PowerLevel; upDateUI();
         }
 
         //LeftMouseInput / SHOOTING
@@ -150,6 +148,35 @@ public class PlayerMovement : MonoBehaviour
         {
             allowFire(AmmoTypes[WeaponNumber]);
 	    }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            foreach (Transform obj in AmmoHolder.transform)
+            {
+                if (obj.gameObject.activeSelf)
+                {
+                    obj.transform.position = Vector3.zero;
+                    obj.gameObject.SetActive(false);
+                    switch (obj.tag)
+                    {
+                        case "Ball":
+                            Ammo[0]++;
+                            break;
+                        case "Cube":
+                            Ammo[1]++;
+                            break;
+                        case "StickyCube":
+                            Ammo[2]++;
+                            break;
+                        case "Laser":
+                            Ammo[3]++;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            upDateUI();
+        }
     }
 
     private IEnumerator Fire(GameObject ammoType)
@@ -164,11 +191,13 @@ public class PlayerMovement : MonoBehaviour
                 {
                     transform.position = tele2.transform.position;
                     Ammo[4]--;
+                    upDateUI();
                 }
                 else if (hit.transform.gameObject == tele2 && tele1.activeSelf && Vector3.Distance(transform.position, hit.transform.position) <= 1)
                 {
                     transform.position = tele1.transform.position;
                     Ammo[4]--;
+                    upDateUI();
                 }
                 else if (teleB == false)
                 {
@@ -208,13 +237,20 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(fireRate);
         firing = false;
     }
+
     private void allowFire(GameObject ammo)
     {
-        if (Ammo[WeaponNumber] > 0 && firing == false)
+        if ((Ammo[WeaponNumber] > 0 || WeaponNumber == 4) && firing == false)
         {
             Ammo[WeaponNumber]--;
-            AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3] + " " + Ammo[4];
-            StartCoroutine(Fire(ammo));
+            upDateUI(); StartCoroutine(Fire(ammo));
         }
+    }
+
+    internal void upDateUI()
+    {
+        WeaponTxt.text = "Weapon Selected: " + WeaponNumber + " " + CurrentWeapon;
+        PowerLvlTxt.text = "Power Lvl: " + PowerLevel;
+        AmmoTxt.text = "Ammo: " + Ammo[0] + " " + Ammo[1] + " " + Ammo[2] + " " + Ammo[3] + " " + Ammo[4];
     }
 }

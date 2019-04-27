@@ -35,9 +35,10 @@ public class PressurePlate : MonoBehaviour {
     private void OnTriggerEnter(Collider other)
     {
         active = true;
+        GetComponent<Renderer>().material.color = Color.red;
     }
 
-    private void ActivateLinked(GameObject Linked)
+    private void ActivateLinked(GameObject Linked, int Sources)
     {
         //
     }
