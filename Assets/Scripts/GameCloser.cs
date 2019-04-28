@@ -5,7 +5,10 @@ using UnityEngine;
 public class GameCloser : MonoBehaviour
 {
     public void Quit()
+
     {
+        Debug.Log("Has Quit Game");
         Application.Quit();
+ 
     }
 }
