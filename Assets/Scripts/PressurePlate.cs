@@ -33,16 +33,16 @@ public class PressurePlate : MonoBehaviour {
     {
         active = false;
         GetComponent<Renderer>().material.color = Color.blue;
+        Linked.GetComponent<Door>().updateSource(gameObject, false);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         active = true;
         GetComponent<Renderer>().material.color = Color.red;
-    }
-
-    private void ActivateLinked(GameObject Linked, int Sources)
-    {
-        //
+        if (Linked.name.Contains("Door"))
+        {
+            Linked.GetComponent<Door>().updateSource(gameObject, true);
+        }
     }
 }

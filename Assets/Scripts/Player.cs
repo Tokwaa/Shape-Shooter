@@ -6,7 +6,7 @@ public class Player : MonoBehaviour
 {
 	//Movement + camera declarations
     [SerializeField]
-	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 2f, verticalRotation = 0f, Yrange = 70f, verticalVelocity;
+	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 5f, verticalRotation = 0f, Yrange = 70f, verticalVelocity;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
 	internal int PhysicsObjects;
     internal int PowerLevel = 1;
     internal bool firing = false, teleB = false;
-    internal int maxAmmo = 10, defualtAmmo = 0;
+    internal int maxAmmo = 10, defualtAmmo = 0, RCount = 0;
 
 	//UI variables
 	internal Text PowerLvlTxt, WeaponTxt, AmmoTxt;
@@ -76,12 +76,13 @@ public class Player : MonoBehaviour
 		verticalRotation = Mathf.Clamp(verticalRotation - Input.GetAxis("Mouse Y") * mouseSensitivity, -Yrange, Yrange); //camera rotates along the vertical axis clamped to +-70 degrees
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
-        // Movement
+        
         if (!characterController.isGrounded)
         {
-            verticalVelocity += Physics.gravity.y * Time.deltaTime;
+            Debug.Log("not grounded");
+            verticalVelocity = Mathf.Lerp(verticalVelocity, -1, Time.deltaTime);
         }
-		else if(Input.GetKey(KeyCode.Space))
+        else if (Input.GetKey(KeyCode.Space))
 		{
 			verticalVelocity = jumpSpeed;
 		}
@@ -150,28 +151,65 @@ public class Player : MonoBehaviour
 	    }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            foreach (Transform obj in AmmoHolder.transform)
+            RCount++;
+            RaycastHit hit;
+            Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 10, Color.red, Mathf.Infinity);
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity) && RCount == 1)
             {
-                if (obj.gameObject.activeSelf)
-                {
-                    obj.transform.position = Vector3.zero;
-                    obj.gameObject.SetActive(false);
-                    switch (obj.tag)
+                Debug.Log(hit.transform.name);
+                foreach (Transform obj in AmmoHolder.transform)
                     {
-                        case "Ball":
-                            Ammo[0]++;
-                            break;
-                        case "Cube":
-                            Ammo[1]++;
-                            break;
-                        case "StickyCube":
-                            Ammo[2]++;
-                            break;
-                        case "Laser":
-                            Ammo[3]++;
-                            break;
-                        default:
-                            break;
+                        if (hit.transform == transform)
+                        {
+                            obj.transform.position = Vector3.zero;
+                            obj.gameObject.SetActive(false);
+                            switch (obj.tag)
+                            {
+                                case "Ball":
+                                    Ammo[0]++;
+                                    break;
+                                case "Cube":
+                                    Ammo[1]++;
+                                    break;
+                                case "StickyCube":
+                                    Ammo[2]++;
+                                    break;
+                                case "Laser":
+                                    Ammo[3]++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            RCount = 0;
+                        }
+                }
+            }
+            else if (RCount == 2)
+            {
+                foreach (Transform obj in AmmoHolder.transform)
+                {
+                    if (obj.gameObject.activeSelf)
+                    {
+                        obj.transform.position = Vector3.zero;
+                        obj.gameObject.SetActive(false);
+                        switch (obj.tag)
+                        {
+                            case "Ball":
+                                Ammo[0]++;
+                                break;
+                            case "Cube":
+                                Ammo[1]++;
+                                break;
+                            case "StickyCube":
+                                Ammo[2]++;
+                                break;
+                            case "Laser":
+                                Ammo[3]++;
+                                break;
+                            default:
+                                break;
+                        }
+                        RCount = 0;
                     }
                 }
             }

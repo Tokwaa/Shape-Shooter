@@ -7,8 +7,8 @@ public class Door : MonoBehaviour
     [SerializeField]
     GameObject[] Inputs;
     private bool[] Sources;
-    bool isPowered = false;
-    bool isEndDoor = false;
+    [SerializeField]
+    private bool isEndDoor = false;
 
     private void Start()
     {
@@ -19,7 +19,7 @@ public class Door : MonoBehaviour
         }
     }
 
-    private void updateSource(GameObject Source, bool active)
+    internal void updateSource(GameObject Source, bool active)
     {
         for (int i = 0; i < gameObject.GetComponent<Door>().Inputs.Length; i++)
         {
@@ -28,12 +28,38 @@ public class Door : MonoBehaviour
                 Sources[i] = active;
             }
         }
+        foreach (bool b in Sources)
+        {
+            if (!b)
+            {
+                break;
+            }
+            else
+            {
+                isPowered(true);
+            }
+        }
     }
+
+    private void isPowered(bool yes)
+    {
+        if (yes)
+        {
+            transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+            transform.GetChild(0).GetComponent<BoxCollider>().isTrigger = true;
+        }
+        else
+        {
+            transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
+            transform.GetChild(0).GetComponent<BoxCollider>().isTrigger = true;
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.name.Contains("Player") && isEndDoor)
         {
-
+            //GO BACK TO MENU
         }
     }
 }
