@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Door : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class Door : MonoBehaviour
     private bool[] Sources;
     [SerializeField]
     internal bool isEndDoor = false;
+    [SerializeField]
+    GameObject levelLoader;
 
     private void Start()
     {
@@ -67,7 +70,15 @@ public class Door : MonoBehaviour
     {
         if (other.gameObject.name.Contains("Player") && isEndDoor)
         {
-            //GO BACK TO MENU
+            int nextscene = SceneManager.GetActiveScene().buildIndex + 1;
+            if (nextscene < SceneManager.sceneCount)
+            {
+                levelLoader.GetComponent<LevelLoader>().LoadLevel(nextscene);
+            }
+            else
+            {
+                levelLoader.GetComponent<LevelLoader>().LoadLevel(0);
+            }
         }
     }
 }

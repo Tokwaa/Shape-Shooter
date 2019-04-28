@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
     //Movement + camera declarations
     internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 10, verticalRotation = 0f, Yrange = 70f;
-    public float verticalVelocity;
+    internal float verticalVelocity;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
@@ -37,9 +38,9 @@ public class Player : MonoBehaviour
         PowerLvlTxt = Canvas.transform.GetChild(1).gameObject.GetComponent<Text>();
         WeaponTxt = Canvas.transform.GetChild(2).gameObject.GetComponent<Text>();
         AmmoTxt = Canvas.transform.GetChild(3).gameObject.GetComponent<Text>();
+        Cursor.lockState = CursorLockMode.Locked;
 
         gun = gameObject.transform.GetChild(0).GetChild(0).gameObject;
-		Cursor.lockState = CursorLockMode.Locked;
 		characterController = GetComponent<CharacterController>();
         gr = gun.gameObject.GetComponent<Renderer>();
         ammoPool = new GameObject[5][];
@@ -70,8 +71,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update () 
 	{
-		//Looking
-		transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);//player rotates along the horizontal axis for local forward vector math
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Main Menu");
+        }
+        //Looking
+        transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);//player rotates along the horizontal axis for local forward vector math
 		verticalRotation = Mathf.Clamp(verticalRotation - Input.GetAxis("Mouse Y") * mouseSensitivity, -Yrange, Yrange); //camera rotates along the vertical axis clamped to +-70 degrees
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
@@ -192,7 +197,6 @@ public class Player : MonoBehaviour
                     Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 10, Color.red, Mathf.Infinity);
                     if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity))
                     {
-                        Debug.Log(hit.transform.name);
                         foreach (Transform obj in AmmoHolder.transform)
                         {
                             if (hit.transform == obj)

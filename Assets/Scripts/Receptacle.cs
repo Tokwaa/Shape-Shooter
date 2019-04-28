@@ -7,13 +7,24 @@ public class Receptacle : MonoBehaviour
     [SerializeField]
     GameObject Linked;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        gameObject.GetComponent<Renderer>().material.color = other.GetComponent<Renderer>().material.color;
+        foreach (var item in GetComponentsInChildren<Renderer>())
+        {
+            item.material.color = Color.blue;
+        }
+        Linked.GetComponent<Door>().updateSource(gameObject, false);
     }
 
-    private void ActivateLinked(GameObject Linked)
+    private void OnTriggerEnter(Collider other)
     {
-        //Linked.getComponent<>()
+        foreach (var item in GetComponentsInChildren<Renderer>())
+        {
+            item.material.color = other.gameObject.GetComponent<Renderer>().material.color;
+        }
+        if (Linked.name.Contains("Door"))
+        {
+            Linked.GetComponent<Door>().updateSource(gameObject, true);
+        }
     }
 }
