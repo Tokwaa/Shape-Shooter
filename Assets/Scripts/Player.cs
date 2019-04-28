@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour
 {
     //Movement + camera declarations
-    internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 10, verticalRotation = 0f, Yrange = 70f;
+    internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 8, verticalRotation = 0f, Yrange = 70f;
     internal float verticalVelocity;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
