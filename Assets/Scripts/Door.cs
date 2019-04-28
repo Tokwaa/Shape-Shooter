@@ -10,8 +10,7 @@ public class Door : MonoBehaviour
     private bool[] Sources;
     [SerializeField]
     internal bool isEndDoor = false;
-    [SerializeField]
-    GameObject levelLoader;
+
 
     private void Start()
     {
@@ -63,23 +62,6 @@ public class Door : MonoBehaviour
         {
             transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
             transform.GetChild(0).GetComponent<BoxCollider>().isTrigger = false;
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.transform.parent.gameObject.name.Contains("Player") && isEndDoor)
-        {
-            Debug.Log("playyer trigger and isend door");
-            int nextscene = SceneManager.GetActiveScene().buildIndex + 1;
-            if (nextscene < SceneManager.sceneCount)
-            {
-                levelLoader.GetComponent<LevelLoader>().LoadLevel(nextscene);
-            }
-            else
-            {
-                levelLoader.GetComponent<LevelLoader>().LoadLevel(0);
-            }
         }
     }
 }
