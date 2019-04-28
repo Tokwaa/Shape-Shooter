@@ -107,35 +107,39 @@ public class Player : MonoBehaviour
             gr.material.color = Color.red;
             WeaponNumber = 0;
             CurrentWeapon = "Ball";
-            powerEffectiveness = 2; upDateUI();
+            powerEffectiveness = 2;
+            upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             gr.material.color = Color.grey;
             WeaponNumber = 1;
             CurrentWeapon = "Cube";
-            powerEffectiveness = 2; upDateUI();
+            powerEffectiveness = 2;
+            upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             gr.material.color = Color.magenta;
             WeaponNumber = 2;
             CurrentWeapon = "Sticky";
-            powerEffectiveness = 2; upDateUI();
+            powerEffectiveness = 2;
+            upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             gr.material.color = Color.yellow;
             WeaponNumber = 3;
             CurrentWeapon = "Laser";
-            powerEffectiveness = 50; upDateUI();
+            powerEffectiveness = 50;
+            upDateUI();
         }
         else if (Input.GetKeyDown(KeyCode.Alpha5))
         {
             gr.material.color = Color.blue;
             WeaponNumber = 4;
             CurrentWeapon = "Teleporter Pair";
-            powerEffectiveness = 5; upDateUI();
+            upDateUI();
         }
 
         //Changing power setting
@@ -290,7 +294,14 @@ public class Player : MonoBehaviour
                 {
                     p.SetActive(true);
                     p.transform.position = gun.transform.position + gun.transform.up;
-                    p.GetComponent<Rigidbody>().velocity = (p.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
+                    if (WeaponNumber == 3)
+                    {
+                        p.GetComponent<Rigidbody>().velocity = (p.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
+                    }
+                    else
+                    {
+                        p.GetComponent<Rigidbody>().velocity = (p.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
+                    }
                     if (p.tag.Contains("Laser"))
                     {
                         StartCoroutine(Laser(p));
@@ -312,10 +323,16 @@ public class Player : MonoBehaviour
 
     private void allowFire(GameObject ammo)
     {
-        if ((Ammo[WeaponNumber] > 0 || WeaponNumber == 4) && firing == false)
+        if ((Ammo[WeaponNumber] > 0 || WeaponNumber == 4 && WeaponNumber != 3) && firing == false)
         {
             Ammo[WeaponNumber]--;
             upDateUI(); StartCoroutine(Fire(ammo));
+        }
+        else if (WeaponNumber == 3)
+        {
+            Ammo[WeaponNumber]--;
+            upDateUI();
+            StartCoroutine(Fire(ammo));
         }
     }
 
