@@ -14,6 +14,8 @@ public class PressurePlate : MonoBehaviour {
     {
         ct = transform.GetChild(0);
         StartPos = ct.position;
+        GetComponent<Renderer>().material.color = Color.blue;
+
     }
     private void Update()
     {
@@ -30,6 +32,7 @@ public class PressurePlate : MonoBehaviour {
     private void OnTriggerExit(Collider other)
     {
         active = false;
+        GetComponent<Renderer>().material.color = Color.blue;
     }
 
     private void OnTriggerEnter(Collider other)

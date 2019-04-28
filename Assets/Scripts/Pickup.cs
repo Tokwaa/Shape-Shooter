@@ -21,12 +21,12 @@ public class Pickup : MonoBehaviour
         if (collision.transform.name.Contains("Player") && !used)
         {
             used = true;
-            for (int i = 0; i < PlayerMovement.Ammo.Length; i++)
+            for (int i = 0; i < Player.Ammo.Length; i++)
             {
-                PlayerMovement.Ammo[i] += value[i];
+                Player.Ammo[i] += value[i];
             }
             Destroy(gameObject);
-            player.GetComponent<PlayerMovement>().upDateUI();
+            player.GetComponent<Player>().upDateUI();
         }
     }
 }

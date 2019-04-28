@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class PlayerMovement : MonoBehaviour
+public class Player : MonoBehaviour
 {
 	//Movement + camera declarations
     [SerializeField]
