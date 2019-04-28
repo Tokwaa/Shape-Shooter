@@ -8,14 +8,21 @@ public class Door : MonoBehaviour
     GameObject[] Inputs;
     private bool[] Sources;
     [SerializeField]
-    private bool isEndDoor = false;
+    internal bool isEndDoor = false;
 
     private void Start()
     {
-        Sources = new bool[Inputs.Length];
-        for (int i = 0; i < Sources.Length; i++)
+        if (Inputs.Length > 0)
         {
-            Sources[i] = false;
+            Sources = new bool[Inputs.Length];
+            for (int i = 0; i < Sources.Length; i++)
+            {
+                Sources[i] = false;
+            }
+        }
+        else
+        {
+            isPowered();
         }
     }
 
@@ -32,16 +39,17 @@ public class Door : MonoBehaviour
         {
             if (!b)
             {
+                isPowered(false);
                 break;
             }
             else
             {
-                isPowered(true);
+                isPowered();
             }
         }
     }
 
-    private void isPowered(bool yes)
+    private void isPowered(bool yes = true)
     {
         if (yes)
         {
@@ -50,8 +58,8 @@ public class Door : MonoBehaviour
         }
         else
         {
-            transform.GetChild(0).GetComponent<MeshRenderer>().enabled = false;
-            transform.GetChild(0).GetComponent<BoxCollider>().isTrigger = true;
+            transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+            transform.GetChild(0).GetComponent<BoxCollider>().isTrigger = false;
         }
     }
 

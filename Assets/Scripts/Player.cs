@@ -4,9 +4,9 @@ using System.Collections;
 
 public class Player : MonoBehaviour
 {
-	//Movement + camera declarations
-    [SerializeField]
-	internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 5f, verticalRotation = 0f, Yrange = 70f, verticalVelocity;
+    //Movement + camera declarations
+    internal float movementSpeed = 5.0f, mouseSensitivity = 5f, jumpSpeed = 10, verticalRotation = 0f, Yrange = 70f;
+    public float verticalVelocity;
     private int powerEffectiveness = 2;
 	private CharacterController characterController;
 
@@ -17,12 +17,11 @@ public class Player : MonoBehaviour
     internal GameObject[] AmmoTypes;
     internal GameObject[][] ammoPool; 
     private GameObject tele1, tele2, gun;
-    private float fireRate = 2f;
+    private float fireRate = 2f, rCount = 0, rCool, lastY;
     internal static int[] Ammo;
-	internal int PhysicsObjects;
     internal int PowerLevel = 1;
     internal bool firing = false, teleB = false;
-    internal int maxAmmo = 10, defualtAmmo = 0, RCount = 0;
+    internal int maxAmmo = 10, defaultAmmo = 0;
 
 	//UI variables
 	internal Text PowerLvlTxt, WeaponTxt, AmmoTxt;
@@ -63,7 +62,7 @@ public class Player : MonoBehaviour
         tele2.SetActive(false);
         Ammo = new int[]
         {
-           defualtAmmo, defualtAmmo, defualtAmmo, defualtAmmo, defualtAmmo
+           defaultAmmo, defaultAmmo, defaultAmmo, defaultAmmo, defaultAmmo
         };
         upDateUI();
     }
@@ -76,18 +75,24 @@ public class Player : MonoBehaviour
 		verticalRotation = Mathf.Clamp(verticalRotation - Input.GetAxis("Mouse Y") * mouseSensitivity, -Yrange, Yrange); //camera rotates along the vertical axis clamped to +-70 degrees
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
-        
         if (!characterController.isGrounded)
         {
-            Debug.Log("not grounded");
-            verticalVelocity = Mathf.Lerp(verticalVelocity, -1, Time.deltaTime);
+            if (verticalVelocity > lastY)
+            {
+                verticalVelocity = Mathf.MoveTowards(verticalVelocity, -jumpSpeed, 8 * Time.deltaTime); //going up
+            }
+            else
+            {
+                verticalVelocity = Mathf.MoveTowards(verticalVelocity, -jumpSpeed, 24 * Time.deltaTime); //coming down
+
+            }
         }
         else if (Input.GetKey(KeyCode.Space))
 		{
 			verticalVelocity = jumpSpeed;
-		}
-		
-		Vector3 speed = new Vector3 (Input.GetAxis("Horizontal") * movementSpeed / 2, verticalVelocity, Input.GetAxis("Vertical") * movementSpeed);
+        }
+        lastY = verticalVelocity;
+        Vector3 speed = new Vector3 (Input.GetAxis("Horizontal") * movementSpeed / 2, verticalVelocity, Input.GetAxis("Vertical") * movementSpeed);
 		speed = transform.rotation * speed;
 		characterController.Move(speed * Time.deltaTime);
 
@@ -151,40 +156,7 @@ public class Player : MonoBehaviour
 	    }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            RCount++;
-            RaycastHit hit;
-            Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 10, Color.red, Mathf.Infinity);
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity) && RCount == 1)
-            {
-                Debug.Log(hit.transform.name);
-                foreach (Transform obj in AmmoHolder.transform)
-                    {
-                        if (hit.transform == transform)
-                        {
-                            obj.transform.position = Vector3.zero;
-                            obj.gameObject.SetActive(false);
-                            switch (obj.tag)
-                            {
-                                case "Ball":
-                                    Ammo[0]++;
-                                    break;
-                                case "Cube":
-                                    Ammo[1]++;
-                                    break;
-                                case "StickyCube":
-                                    Ammo[2]++;
-                                    break;
-                                case "Laser":
-                                    Ammo[3]++;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            RCount = 0;
-                        }
-                }
-            }
-            else if (RCount == 2)
+            if (rCool > 0 && rCount == 1)
             {
                 foreach (Transform obj in AmmoHolder.transform)
                 {
@@ -209,11 +181,58 @@ public class Player : MonoBehaviour
                             default:
                                 break;
                         }
-                        RCount = 0;
                     }
                 }
             }
+            else
+            {
+                if (rCount == 0)
+                {
+                    RaycastHit hit;
+                    Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * 10, Color.red, Mathf.Infinity);
+                    if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity))
+                    {
+                        Debug.Log(hit.transform.name);
+                        foreach (Transform obj in AmmoHolder.transform)
+                        {
+                            if (hit.transform == obj)
+                            {
+                                obj.transform.position = Vector3.zero;
+                                obj.gameObject.SetActive(false);
+                                switch (obj.tag)
+                                {
+                                    case "Ball":
+                                        Ammo[0]++;
+                                        break;
+                                    case "Cube":
+                                        Ammo[1]++;
+                                        break;
+                                    case "StickyCube":
+                                        Ammo[2]++;
+                                        break;
+                                    case "Laser":
+                                        Ammo[3]++;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+
+                    }
+                }
+                rCool = 0.35f;
+                rCount++;
+            }
             upDateUI();
+        }
+        if (rCool > 0)
+        {
+            rCool -= Time.deltaTime;
+        }
+        else
+        {
+            rCount = 0;
         }
     }
 
@@ -268,12 +287,23 @@ public class Player : MonoBehaviour
                     p.SetActive(true);
                     p.transform.position = gun.transform.position + gun.transform.up;
                     p.GetComponent<Rigidbody>().velocity = (p.transform.position - gun.transform.position).normalized * (PowerLevel * powerEffectiveness);
+                    if (p.tag.Contains("Laser"))
+                    {
+                        StartCoroutine(Laser(p));
+                    }
                     break;
                 }
             }
         }
         yield return new WaitForSeconds(fireRate);
         firing = false;
+    }
+    private IEnumerator Laser(GameObject l)
+    {
+        yield return new WaitForSeconds(10);
+        l.transform.position = Vector3.zero;
+        l.SetActive(false);
+        Ammo[3]++;
     }
 
     private void allowFire(GameObject ammo)
