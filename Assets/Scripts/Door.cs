@@ -68,8 +68,9 @@ public class Door : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.name.Contains("Player") && isEndDoor)
+        if (other.transform.parent.gameObject.name.Contains("Player") && isEndDoor)
         {
+            Debug.Log("playyer trigger and isend door");
             int nextscene = SceneManager.GetActiveScene().buildIndex + 1;
             if (nextscene < SceneManager.sceneCount)
             {

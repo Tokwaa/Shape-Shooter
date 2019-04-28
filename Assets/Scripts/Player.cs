@@ -71,10 +71,10 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update () 
 	{
-        if (Input.GetKeyDown(KeyCode.Escape))
+       /* if (Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene("Main Menu");
-        }
+        }*/
         //Looking
         transform.Rotate(0, Input.GetAxis("Mouse X") * mouseSensitivity, 0);//player rotates along the horizontal axis for local forward vector math
 		verticalRotation = Mathf.Clamp(verticalRotation - Input.GetAxis("Mouse Y") * mouseSensitivity, -Yrange, Yrange); //camera rotates along the vertical axis clamped to +-70 degrees
