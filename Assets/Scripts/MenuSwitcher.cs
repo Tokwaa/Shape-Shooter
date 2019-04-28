@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class MenuSwitcher : MonoBehaviour
 {
-    internal static void OpenPanel(GameObject PanelToOpen, GameObject PanelToClose)
+    public GameObject PanelToOpen;
+    public GameObject PanelToClose;
+
+
+    public void OpenPanel()
     {
         PanelToOpen.SetActive(true);
         PanelToClose.SetActive(false);
